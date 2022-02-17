@@ -686,7 +686,7 @@ char *Sys_ParseProtocolUri( char *uri )
 
 	// At the moment, only "connect/hostname:port" is supported
 	// For safety reasons, the "hostname:port" part can only
-	// contain characters from [a-zA-Z0-9.:-]
+	// contain characters from: a-zA-Z0-9.:-[]
 	if ( Q_strncmp( command, "connect/", strlen( "connect/" ) ) )
 	{
 		Com_Printf( "Sys_ParseProtocolUri: unsupported command.\n" );
@@ -713,7 +713,8 @@ char *Sys_ParseProtocolUri( char *uri )
 		}
 
 		if ( isalpha( arg[i] ) == 0 && isdigit( arg[i] ) == 0
-		 && arg[i] != '.' && arg[i] != ':' && arg[i] != '-' )
+		 && arg[i] != '.' && arg[i] != ':' && arg[i] != '-'
+		 && arg[i] != '[' && arg[i] != ']' )
 		{
 			Com_Printf( "Sys_ParseProtocolUri: hostname contains unsupported characters.\n" );
 			return NULL;
