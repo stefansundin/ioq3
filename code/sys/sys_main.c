@@ -682,10 +682,6 @@ char *Sys_ParseProtocolUri( char *uri )
 	{
 		command += strlen( "//" );
 	}
-	if ( command[0] == '\0' )
-	{
-		return NULL;
-	}
 	Com_Printf( "Sys_ParseProtocolUri: %s\n", command );
 
 	// At the moment, only "connect/hostname:port" is supported
