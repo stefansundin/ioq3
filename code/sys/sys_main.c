@@ -672,18 +672,15 @@ char *Sys_ParseProtocolUri( char *uri )
 	int i;
 
 	// Both "quake3://" and "quake3:" can be used
-	if ( !Q_strncmp( uri, PROTOCOL_HANDLER "://", strlen( PROTOCOL_HANDLER "://" ) ) )
-	{
-		command = uri + strlen( PROTOCOL_HANDLER "://" );
-	}
-	else if ( !Q_strncmp(uri, PROTOCOL_HANDLER ":", strlen( PROTOCOL_HANDLER ":" ) ) )
-	{
-		command = uri + strlen( PROTOCOL_HANDLER ":" );
-	}
-	else
+	if ( Q_strncmp(uri, PROTOCOL_HANDLER ":", strlen( PROTOCOL_HANDLER ":" ) ) )
 	{
 		Com_Printf( "Sys_ParseProtocolUri: unsupported protocol.\n" );
 		return NULL;
+	}
+	command = uri + strlen( PROTOCOL_HANDLER ":" );
+	if ( !Q_strncmp(command, "//", strlen( "//" ) ) )
+	{
+		command += strlen( "//" );
 	}
 	if ( command[0] == '\0' )
 	{
