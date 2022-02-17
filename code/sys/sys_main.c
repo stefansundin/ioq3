@@ -651,7 +651,7 @@ See sys_osx.m for macOS implementation.
 =================
 */
 #ifndef __APPLE__
-void Sys_InitProtocolHandler( )
+void Sys_InitProtocolHandler( void )
 {
 }
 #endif
@@ -668,13 +668,15 @@ At the moment only the "connect" command is supported.
 */
 char *Sys_ParseProtocolUri( char *uri )
 {
+	char *command, *arg;
+	int i;
+
 	// Both "quake3://" and "quake3:" can be used
-	char *command;
-	if ( strstr( uri, PROTOCOL_HANDLER "://" ) == uri )
+	if ( !Q_strncmp( uri, PROTOCOL_HANDLER "://", strlen( PROTOCOL_HANDLER "://" ) ) )
 	{
 		command = uri + strlen( PROTOCOL_HANDLER "://" );
 	}
-	else if ( strstr(uri, PROTOCOL_HANDLER ":" ) == uri )
+	else if ( !Q_strncmp(uri, PROTOCOL_HANDLER ":", strlen( PROTOCOL_HANDLER ":" ) ) )
 	{
 		command = uri + strlen( PROTOCOL_HANDLER ":" );
 	}
@@ -692,12 +694,12 @@ char *Sys_ParseProtocolUri( char *uri )
 	// At the moment, only "connect/hostname:port" is supported
 	// For safety reasons, the "hostname:port" part can only
 	// contain characters from [a-zA-Z0-9.:-]
-	if ( strstr( command, "connect/" ) != command )
+	if ( Q_strncmp( command, "connect/", strlen( "connect/" ) ) )
 	{
 		Com_Printf( "Sys_ParseProtocolUri: unsupported command.\n" );
 		return NULL;
 	}
-	char *arg = strchr( command, '/' );
+	arg = strchr( command, '/' );
 	if ( arg == NULL || arg[1] == '\0' || arg[1] == '?' )
 	{
 		Com_Printf( "Sys_ParseProtocolUri: missing argument.\n" );
@@ -707,7 +709,7 @@ char *Sys_ParseProtocolUri( char *uri )
 	arg++;
 
 	// Check for any unsupported characters
-	for ( int i=0; arg[i] != '\0'; i++ )
+	for ( i=0; arg[i] != '\0'; i++ )
 	{
 		if ( arg[i] == '?' )
 		{
