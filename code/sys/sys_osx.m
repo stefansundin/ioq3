@@ -125,10 +125,7 @@ char *Sys_StripAppBundle( char *dir )
 - (void)handleAppleEvent:(NSAppleEventDescriptor *)event withReplyEvent: (NSAppleEventDescriptor *)replyEvent
 {
 	NSString *input = [[event paramDescriptorForKeyword:keyDirectObject] stringValue];
-	char str [input.length];
-	strcpy( str, input.UTF8String );
-
-	char *command = Sys_ParseProtocolUri( str );
+	char *command = Sys_ParseProtocolUri( input.UTF8String );
 	if ( command == NULL )
 	{
 		return;
