@@ -716,7 +716,7 @@ char *Sys_ParseProtocolUri( const char *uri )
 		}
 
 		bufsize = strlen( "connect " ) + i + 1;
-		out = S_Malloc( bufsize );
+		out = malloc( bufsize );
 		strcpy( out, "connect " );
 		strncat( out, uri, i );
 		return out;
@@ -827,7 +827,28 @@ int main( int argc, char **argv )
 	// Concatenate the command line for passing to Com_Init
 	for( i = 1; i < argc; i++ )
 	{
-		const qboolean containsSpaces = strchr(argv[i], ' ') != NULL;
+		qboolean containsSpaces;
+
+		// For security reasons we always detect --uri, even when PROTOCOL_HANDLER is undefined
+		// Any arguments after "--uri quake3://..." is ignored
+		if (!strcmp( argv[i], "--uri" ))
+		{
+			#if defined(PROTOCOL_HANDLER) && !defined(__APPLE__)
+			if ( argc > i+1 )
+			{
+				char *command = Sys_ParseProtocolUri( argv[i+1] );
+				if ( command != NULL )
+				{
+					Q_strcat( commandLine, sizeof( commandLine ), "+" );
+					Q_strcat( commandLine, sizeof( commandLine ), command );
+					free( command );
+				}
+			}
+			#endif
+			break;
+		}
+
+		containsSpaces = strchr(argv[i], ' ') != NULL;
 		if (containsSpaces)
 			Q_strcat( commandLine, sizeof( commandLine ), "\"" );
 
@@ -845,17 +866,6 @@ int main( int argc, char **argv )
 
 #ifdef PROTOCOL_HANDLER
 	Sys_InitProtocolHandler( );
-#ifndef __APPLE__
-	if ( argc > 1 )
-	{
-		char *command = Sys_ParseProtocolUri( argv[1] );
-		if ( command != NULL )
-		{
-			int bufsize = strlen( command ) + 1;
-			Com_QueueEvent( 0, SE_CONSOLE, 0, 0, bufsize, (void*) command );
-		}
-	}
-#endif
 #endif
 
 	signal( SIGILL, Sys_SigHandler );
