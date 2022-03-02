@@ -666,62 +666,66 @@ operation is invalid or unsupported.
 At the moment only the "connect" command is supported.
 =================
 */
-char *Sys_ParseProtocolUri( char *uri )
+char *Sys_ParseProtocolUri( const char *uri )
 {
-	char *command, *arg;
-	int i;
-
 	// Both "quake3://" and "quake3:" can be used
 	if ( Q_strncmp(uri, PROTOCOL_HANDLER ":", strlen( PROTOCOL_HANDLER ":" ) ) )
 	{
 		Com_Printf( "Sys_ParseProtocolUri: unsupported protocol.\n" );
 		return NULL;
 	}
-	command = uri + strlen( PROTOCOL_HANDLER ":" );
-	if ( !Q_strncmp(command, "//", strlen( "//" ) ) )
+	uri += strlen( PROTOCOL_HANDLER ":" );
+	if ( !Q_strncmp(uri, "//", strlen( "//" ) ) )
 	{
-		command += strlen( "//" );
+		uri += strlen( "//" );
 	}
-	Com_Printf( "Sys_ParseProtocolUri: %s\n", command );
+	Com_Printf( "Sys_ParseProtocolUri: %s\n", uri );
 
 	// At the moment, only "connect/hostname:port" is supported
-	// For safety reasons, the "hostname:port" part can only
-	// contain characters from: a-zA-Z0-9.:-[]
-	if ( Q_strncmp( command, "connect/", strlen( "connect/" ) ) )
+	if ( !Q_strncmp( uri, "connect/", strlen( "connect/" ) ) )
+	{
+		int i, bufsize;
+		char *out;
+
+		uri += strlen( "connect/" );
+		if ( *uri == '\0' || *uri == '?' )
+		{
+			Com_Printf( "Sys_ParseProtocolUri: missing argument.\n" );
+			return NULL;
+		}
+
+		// Check for any unsupported characters
+		// For safety reasons, the "hostname:port" part can only
+		// contain characters from: a-zA-Z0-9.:-[]
+		for ( i=0; uri[i] != '\0'; i++ )
+		{
+			if ( uri[i] == '?' )
+			{
+				// For forwards compatibility, any query string parameters are ignored (e.g. "?password=abcd")
+				// However, these are not passed on macOS, so it may be a bad idea to add them.
+				break;
+			}
+
+			if ( isalpha( uri[i] ) == 0 && isdigit( uri[i] ) == 0
+				&& uri[i] != '.' && uri[i] != ':' && uri[i] != '-'
+				&& uri[i] != '[' && uri[i] != ']' )
+			{
+				Com_Printf( "Sys_ParseProtocolUri: hostname contains unsupported character.\n" );
+				return NULL;
+			}
+		}
+
+		bufsize = strlen( "connect " ) + i + 1;
+		out = S_Malloc( bufsize );
+		strcpy( out, "connect " );
+		strncat( out, uri, i );
+		return out;
+	}
+	else
 	{
 		Com_Printf( "Sys_ParseProtocolUri: unsupported command.\n" );
 		return NULL;
 	}
-	arg = strchr( command, '/' );
-	if ( arg == NULL || arg[1] == '\0' || arg[1] == '?' )
-	{
-		Com_Printf( "Sys_ParseProtocolUri: missing argument.\n" );
-		return NULL;
-	}
-	*arg = ' ';
-	arg++;
-
-	// Check for any unsupported characters
-	for ( i=0; arg[i] != '\0'; i++ )
-	{
-		if ( arg[i] == '?' )
-		{
-			// For forwards compatibility, any query string parameters are ignored (e.g. "?password=abcd")
-			// However, these are not passed on macOS, so it may be a bad idea to add them.
-			arg[i] = '\0';
-			break;
-		}
-
-		if ( isalpha( arg[i] ) == 0 && isdigit( arg[i] ) == 0
-		 && arg[i] != '.' && arg[i] != ':' && arg[i] != '-'
-		 && arg[i] != '[' && arg[i] != ']' )
-		{
-			Com_Printf( "Sys_ParseProtocolUri: hostname contains unsupported characters.\n" );
-			return NULL;
-		}
-	}
-
-	return CopyString( command );
 }
 #endif
 
