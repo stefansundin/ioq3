@@ -138,7 +138,7 @@ Section "Protocol Handler" ProtocolHandler
   WriteRegStr SHCTX "Software\Classes\quake3" "CustomUrlArguments" '"%1"'
   WriteRegStr SHCTX "Software\Classes\quake3" "URL Protocol" ""
   WriteRegStr SHCTX "Software\Classes\quake3\DefaultIcon" "" "$INSTDIR\ioquake3.x86.exe,0"
-  WriteRegStr SHCTX "Software\Classes\quake3\shell\open\command" "" '"$INSTDIR\ioquake3.x86.exe" "%1"'
+  WriteRegStr SHCTX "Software\Classes\quake3\shell\open\command" "" '"$INSTDIR\ioquake3.x86.exe" --uri "%1"'
 
 SectionEnd
 

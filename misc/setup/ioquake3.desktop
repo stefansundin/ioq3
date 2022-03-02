@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=ioquake3
-Exec=ioquake3 %u
+Exec=ioquake3 --uri %u
 Icon=quake3
 Type=Application
 Terminal=false
