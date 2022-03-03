@@ -690,13 +690,13 @@ At the moment only the "connect" command is supported.
 char *Sys_ParseProtocolUri( const char *uri )
 {
 	// Both "quake3://" and "quake3:" can be used
-	if ( Q_strncmp(uri, PROTOCOL_HANDLER ":", strlen( PROTOCOL_HANDLER ":" ) ) )
+	if ( Q_strncmp( uri, PROTOCOL_HANDLER ":", strlen( PROTOCOL_HANDLER ":" ) ) )
 	{
 		Com_Printf( "Sys_ParseProtocolUri: unsupported protocol.\n" );
 		return NULL;
 	}
 	uri += strlen( PROTOCOL_HANDLER ":" );
-	if ( !Q_strncmp(uri, "//", strlen( "//" ) ) )
+	if ( !Q_strncmp( uri, "//", strlen( "//" ) ) )
 	{
 		uri += strlen( "//" );
 	}
