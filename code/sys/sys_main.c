@@ -48,6 +48,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qcommon.h"
 
 static char binaryPath[ MAX_OSPATH ] = { 0 };
+static char executablePath[ MAX_OSPATH ] = { 0 };
 static char installPath[ MAX_OSPATH ] = { 0 };
 
 /*
@@ -68,6 +69,26 @@ Sys_BinaryPath
 char *Sys_BinaryPath(void)
 {
 	return binaryPath;
+}
+
+/*
+=================
+Sys_SetExecutablePath
+=================
+*/
+void Sys_SetExecutablePath(const char *path)
+{
+	Q_strncpyz(executablePath, path, sizeof(executablePath));
+}
+
+/*
+=================
+Sys_ExecutablePath
+=================
+*/
+char *Sys_ExecutablePath(void)
+{
+	return executablePath;
 }
 
 /*
@@ -821,6 +842,7 @@ int main( int argc, char **argv )
 #endif
 
 	Sys_ParseArgs( argc, argv );
+	Sys_SetExecutablePath( argv[ 0 ] );
 	Sys_SetBinaryPath( Sys_Dirname( argv[ 0 ] ) );
 	Sys_SetDefaultInstallPath( DEFAULT_BASEDIR );
 
