@@ -855,7 +855,7 @@ int main( int argc, char **argv )
 		// Any arguments after "--uri quake3://..." is ignored
 		if (!strcmp( argv[i], "--uri" ))
 		{
-			#if defined(PROTOCOL_HANDLER) && !defined(__APPLE__)
+			#ifdef PROTOCOL_HANDLER
 			if ( argc > i+1 )
 			{
 				char *command = Sys_ParseProtocolUri( argv[i+1] );
