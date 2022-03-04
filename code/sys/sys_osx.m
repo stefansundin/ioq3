@@ -130,8 +130,9 @@ char *Sys_StripAppBundle( char *dir )
 	{
 		return;
 	}
-	int bufsize = strlen( command ) + 1;
-	Com_QueueEvent( 0, SE_CONSOLE, 0, 0, bufsize, (void*) command );
+	char *buf = CopyString( command );
+	free( command );
+	Com_QueueEvent( 0, SE_CONSOLE, 0, 0, strlen( buf ) + 1, (void*) buf );
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification
