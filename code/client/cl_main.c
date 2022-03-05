@@ -4722,9 +4722,9 @@ CL_RegisterProtocolHandler_f
 */
 void CL_RegisterProtocolHandler_f( void )
 {
-	#ifndef PROTOCOL_HANDLER
+#ifndef PROTOCOL_HANDLER
 	Com_Printf( "Not built with protocol handler support.\n" );
-	#elif _WIN32
+#elif _WIN32
 
 	HKEY key;
 	int error;
@@ -4746,7 +4746,6 @@ void CL_RegisterProtocolHandler_f( void )
 		return;
 	}
 
-	// value = "\"%1\"";
 	strcpy( value, "\"%1\"" );
 	error = RegSetValueEx( key, "CustomUrlArguments", 0, REG_SZ, (LPBYTE) value, strlen( value ) + 1 );
 	if ( error != ERROR_SUCCESS )
@@ -4798,7 +4797,7 @@ void CL_RegisterProtocolHandler_f( void )
 
 	Com_Printf( "Registered protocol " PROTOCOL_HANDLER ":// at HKEY_CURRENT_USER\\Software\\Classes\\" PROTOCOL_HANDLER "\\\n" );
 
-	#else
+#else
 	Com_Printf( "Only implemented for Windows.\n" );
-	#endif
+#endif
 }

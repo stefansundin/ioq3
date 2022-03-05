@@ -34,6 +34,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #import <Carbon/Carbon.h>
 #import <Cocoa/Cocoa.h>
 
+#ifdef PROTOCOL_HANDLER
+char *protocolCommand = NULL;
+#endif
+
 /*
 ==============
 Sys_Dialog
@@ -117,6 +121,7 @@ char *Sys_StripAppBundle( char *dir )
 }
 
 #ifdef PROTOCOL_HANDLER
+
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 @end
 
@@ -125,14 +130,7 @@ char *Sys_StripAppBundle( char *dir )
 - (void)handleAppleEvent:(NSAppleEventDescriptor *)event withReplyEvent: (NSAppleEventDescriptor *)replyEvent
 {
 	NSString *input = [[event paramDescriptorForKeyword:keyDirectObject] stringValue];
-	char *command = Sys_ParseProtocolUri( input.UTF8String );
-	if ( command == NULL )
-	{
-		return;
-	}
-	char *buf = CopyString( command );
-	free( command );
-	Com_QueueEvent( 0, SE_CONSOLE, 0, 0, strlen( buf ) + 1, (void*) buf );
+	protocolCommand = Sys_ParseProtocolUri( input.UTF8String );
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification
@@ -142,7 +140,7 @@ char *Sys_StripAppBundle( char *dir )
 
 @end
 
-void Sys_InitProtocolHandler( void )
+char *Sys_InitProtocolHandler( void )
 {
 	[NSApplication sharedApplication];
 
@@ -155,5 +153,8 @@ void Sys_InitProtocolHandler( void )
 
 	[NSApp setDelegate:appDelegate];
 	[NSApp run];
+
+	return protocolCommand;
 }
+
 #endif

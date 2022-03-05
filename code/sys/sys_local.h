@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 #endif
 
-char *Sys_ExecutablePath(void);
+char *Sys_ExecutablePath( void );
 
 // Console
 void CON_Shutdown( void );
@@ -68,6 +68,6 @@ int Sys_PID( void );
 qboolean Sys_PIDIsRunning( int pid );
 
 #ifdef PROTOCOL_HANDLER
-void Sys_InitProtocolHandler( void );
+char *Sys_InitProtocolHandler( void );
 char *Sys_ParseProtocolUri( const char *uri );
 #endif

@@ -672,8 +672,9 @@ See sys_osx.m for macOS implementation.
 =================
 */
 #ifndef __APPLE__
-void Sys_InitProtocolHandler( void )
+char *Sys_InitProtocolHandler( void )
 {
+	return NULL;
 }
 #endif
 
@@ -736,9 +737,9 @@ char *Sys_ParseProtocolUri( const char *uri )
 			}
 		}
 
-		bufsize = strlen( "connect " ) + i + 1;
+		bufsize = strlen( "+connect " ) + i + 1;
 		out = malloc( bufsize );
-		strcpy( out, "connect " );
+		strcpy( out, "+connect " );
 		strncat( out, uri, i );
 		return out;
 	}
@@ -798,6 +799,9 @@ int main( int argc, char **argv )
 {
 	int   i;
 	char  commandLine[ MAX_STRING_CHARS ] = { 0 };
+#ifdef PROTOCOL_HANDLER
+	char *protocolCommand = NULL;
+#endif
 
 	extern void Sys_LaunchAutoupdater(int argc, char **argv);
 	Sys_LaunchAutoupdater(argc, argv);
@@ -832,6 +836,10 @@ int main( int argc, char **argv )
 
 	Sys_PlatformInit( );
 
+#ifdef PROTOCOL_HANDLER
+	protocolCommand = Sys_InitProtocolHandler( );
+#endif
+
 	// Set the initial time base
 	Sys_Milliseconds( );
 
@@ -855,18 +863,12 @@ int main( int argc, char **argv )
 		// Any arguments after "--uri quake3://..." is ignored
 		if (!strcmp( argv[i], "--uri" ))
 		{
-			#ifdef PROTOCOL_HANDLER
+#ifdef PROTOCOL_HANDLER
 			if ( argc > i+1 )
 			{
-				char *command = Sys_ParseProtocolUri( argv[i+1] );
-				if ( command != NULL )
-				{
-					Q_strcat( commandLine, sizeof( commandLine ), "+" );
-					Q_strcat( commandLine, sizeof( commandLine ), command );
-					free( command );
-				}
+				protocolCommand = Sys_ParseProtocolUri( argv[i+1] );
 			}
-			#endif
+#endif
 			break;
 		}
 
@@ -882,13 +884,17 @@ int main( int argc, char **argv )
 		Q_strcat( commandLine, sizeof( commandLine ), " " );
 	}
 
+#ifdef PROTOCOL_HANDLER
+	if ( protocolCommand != NULL )
+	{
+		Q_strcat( commandLine, sizeof( commandLine ), protocolCommand );
+		free( protocolCommand );
+	}
+#endif
+
 	CON_Init( );
 	Com_Init( commandLine );
 	NET_Init( );
-
-#ifdef PROTOCOL_HANDLER
-	Sys_InitProtocolHandler( );
-#endif
 
 	signal( SIGILL, Sys_SigHandler );
 	signal( SIGFPE, Sys_SigHandler );
