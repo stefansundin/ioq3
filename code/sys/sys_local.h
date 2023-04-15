@@ -40,8 +40,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 #endif
 
-char *Sys_ExecutablePath( void );
-
 // Console
 void CON_Shutdown( void );
 void CON_Init( void );

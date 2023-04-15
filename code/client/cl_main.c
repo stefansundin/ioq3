@@ -24,10 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "client.h"
 #include <limits.h>
 
-#ifdef WIN32
-#include <winreg.h>
-#endif
-
 #include "../sys/sys_local.h"
 #include "../sys/sys_loadlib.h"
 
@@ -166,7 +162,6 @@ void CL_CheckForResend( void );
 void CL_ShowIP_f(void);
 void CL_ServerStatus_f(void);
 void CL_ServerStatusResponse( netadr_t from, msg_t *msg );
-void CL_RegisterProtocolHandler_f( void );
 
 /*
 ===============
@@ -3699,7 +3694,6 @@ void CL_Init( void ) {
 		Cmd_AddCommand ("sayto", CL_Sayto_f );
 		Cmd_SetCommandCompletionFunc( "sayto", CL_CompletePlayerName );
 	}
-	Cmd_AddCommand ("registerprotocolhandler", CL_RegisterProtocolHandler_f );
 	CL_InitRef();
 
 	SCR_Init ();
@@ -4712,92 +4706,5 @@ qboolean CL_CDKeyValidate( const char *key, const char *checksum ) {
 	}
 
 	return qfalse;
-#endif
-}
-
-/*
-==================
-CL_RegisterProtocolHandler_f
-==================
-*/
-void CL_RegisterProtocolHandler_f( void )
-{
-#ifndef PROTOCOL_HANDLER
-	Com_Printf( "Not built with protocol handler support.\n" );
-#elif _WIN32
-
-	HKEY key;
-	int error;
-	char *path;
-	char value[MAX_PATH];
-
-	error = RegCreateKeyEx( HKEY_CURRENT_USER, "Software\\Classes\\" PROTOCOL_HANDLER, 0, NULL, 0, KEY_SET_VALUE, NULL, &key, NULL );
-	if ( error != ERROR_SUCCESS )
-	{
-		Com_Printf( "Error opening registry key.\n" );
-		return;
-	}
-
-	path = Sys_ExecutablePath( );
-	error = RegSetValueEx( key, "CustomUrlApplication", 0, REG_SZ, (LPBYTE) path, strlen( path ) + 1 );
-	if ( error != ERROR_SUCCESS )
-	{
-		Com_Printf( "Error writing to registry.\n" );
-		return;
-	}
-
-	strcpy( value, "\"%1\"" );
-	error = RegSetValueEx( key, "CustomUrlArguments", 0, REG_SZ, (LPBYTE) value, strlen( value ) + 1 );
-	if ( error != ERROR_SUCCESS )
-	{
-		Com_Printf( "Error writing to registry key.\n" );
-		return;
-	}
-
-	strcpy( value, "" );
-	error = RegSetValueEx( key, "URL Protocol", 0, REG_SZ, (LPBYTE) value, strlen( value ) + 1 );
-	if ( error != ERROR_SUCCESS )
-	{
-		Com_Printf( "Error writing to registry.\n" );
-		return;
-	}
-	RegCloseKey( key );
-
-	error = RegCreateKeyEx( HKEY_CURRENT_USER, "Software\\Classes\\" PROTOCOL_HANDLER "\\DefaultIcon", 0, NULL, 0, KEY_SET_VALUE, NULL, &key, NULL );
-	if ( error != ERROR_SUCCESS )
-	{
-		Com_Printf( "Error opening registry key.\n" );
-		return;
-	}
-
-	snprintf( value, sizeof(value), "%s,0", path );
-	error = RegSetValueEx( key, "", 0, REG_SZ, (LPBYTE) value, strlen( value ) + 1 );
-	if ( error != ERROR_SUCCESS )
-	{
-		Com_Printf( "Error writing to registry.\n" );
-		return;
-	}
-	RegCloseKey( key );
-
-	error = RegCreateKeyEx( HKEY_CURRENT_USER, "Software\\Classes\\" PROTOCOL_HANDLER "\\shell\\open\\command", 0, NULL, 0, KEY_SET_VALUE, NULL, &key, NULL );
-	if ( error != ERROR_SUCCESS )
-	{
-		Com_Printf( "Error opening registry key.\n" );
-		return;
-	}
-
-	snprintf( value, sizeof(value), "\"%s\" --uri \"%%1\"", path );
-	error = RegSetValueEx( key, "", 0, REG_SZ, (LPBYTE) value, strlen( value ) + 1 );
-	if ( error != ERROR_SUCCESS )
-	{
-		Com_Printf( "Error writing to registry.\n" );
-		return;
-	}
-	RegCloseKey( key );
-
-	Com_Printf( "Registered protocol " PROTOCOL_HANDLER ":// at HKEY_CURRENT_USER\\Software\\Classes\\" PROTOCOL_HANDLER "\\\n" );
-
-#else
-	Com_Printf( "Only implemented for Windows.\n" );
 #endif
 }
