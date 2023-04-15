@@ -861,7 +861,7 @@ int main( int argc, char **argv )
 
 		// For security reasons we always detect --uri, even when PROTOCOL_HANDLER is undefined
 		// Any arguments after "--uri quake3://..." is ignored
-		if (!strcmp( argv[i], "--uri" ))
+		if ( !strcmp( argv[i], "--uri" ) )
 		{
 #ifdef PROTOCOL_HANDLER
 			if ( argc > i+1 )
